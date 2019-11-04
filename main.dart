@@ -89,7 +89,92 @@ abstract class Describable {
   }
 }
 
-// app entrypoint
+// Getters and setters
+class MyClass {
+  int _aProperty = 0;
+  List<int> _values = [];
+
+  int get aProperty => _aProperty;
+
+  set aProperty(int value) {
+    if (value >= 0) {
+      _aProperty = value;
+    }
+  }
+
+  void addValue(int value) {
+    _values.add(value);
+  }
+
+  // A computed property
+  int get count {
+    return _values.length;
+  }
+}
+
+class InvalidPriceException implements Exception {}
+
+class ShoppingCart {
+  List<double> _prices = [];
+
+  double get total => _prices.fold(0, (e, t) => e + t);
+
+  set prices(List<double> value) {
+    if (value.any((p) => p < 0)) {
+      throw InvalidPriceException();
+    }
+
+    _prices = value;
+  }
+}
+
+// Optional named parameters
+class MyDataObject {
+  final int anInt;
+  final String aString;
+  final double aDouble;
+
+  MyDataObject({
+    this.anInt = 1,
+    this.aString = 'Old!',
+    this.aDouble = 2.0,
+  });
+
+  MyDataObject copyWith({int newInt, String newString, double newDouble}) {
+    return MyDataObject(
+      anInt: newInt ?? this.anInt,
+      aString: newString ?? this.aString,
+      aDouble: newDouble ?? this.aDouble,
+    );
+  }
+}
+
+// Using this in a constructor
+class MyColorOne {
+  int red;
+  int green;
+  int blue;
+
+  MyColorOne(this.red, this.green, this.blue);
+}
+
+class MyColorTwo {
+  int red;
+  int green;
+  int blue;
+
+  MyColorTwo({this.red = 0, this.green = 0, this.blue = 0});
+}
+
+class MyColorThree {
+  int red;
+  int green;
+  int blue;
+
+  MyColorThree([this.red = 0, this.green = 0, this.blue = 0]);
+}
+
+// app entry point
 main() {
   // Hello World
   print("Hello, World!");
@@ -202,8 +287,35 @@ main() {
 
   // Exceptions
   /*
+  throw Exception('Something bad happened.');
+  throw 'Waaaaaaah!';
+
   if (astronauts == 0) {
     throw StateError('No astronauts.');
+  }
+  */
+
+  /*
+  try {
+    breedMoreLlamas();
+  } on OutOfLlamasException {
+    // A specific exception
+    buyMoreLlamas();
+  } on Exception catch (e) {
+    // Anything else that is an exception
+    print('Unknown exception: $e');
+  } catch (e) {
+    // No specified type, handles all
+    print('Something really unknown: $e');
+  }
+  */
+
+  /*
+  try {
+    breedMoreLlamas();
+  } catch (e) {
+    print('I was just trying to breed llamas!.');
+    rethrow;
   }
   */
 
@@ -216,6 +328,7 @@ main() {
     } on IOException catch (e) {
       print('Could not describe object: $e');
     } finally {
+      // Always clean up, even if an exception is thrown
       objects.clear();
     }
   }
@@ -229,4 +342,70 @@ main() {
 
   print(1 ?? 3); // <-- Prints 1.
   print(null ?? 12); // <-- Prints 12.
+
+  // Conditional property access
+  // myObject?.someProperty // (myObject != null) ? myObject.someProperty : null
+  // myObject?.someProperty?.someMethod()
+  String upperCaseIt(String str) {
+    return str?.toUpperCase();
+  }
+
+  // Collection literals
+  final aListOfStrings = ['one', 'two', 'three'];
+  final aSetOfStrings = {'one', 'two', 'three'};
+  final aMapOfStringsToInts = {
+    'one': 1,
+    'two': 2,
+    'three': 3,
+  };
+
+  final aListOfInts = <int>[];
+  final aSetOfInts = <int>{};
+  final aMapOfIntToDouble = <int, double>{};
+
+  // final aListOfBaseType = <BaseType>[SubType(), SubType()];
+
+  // Arrow syntax
+  /*
+  bool hasEmpty = aListOfStrings.any((s) {
+    return s.isEmpty;
+  });
+  */
+  bool hasEmpty = aListOfStrings.any((s) => s.isEmpty);
+
+  // Cascades
+  // myObject.someMethod() // myObject..someMethod()
+
+  /*
+  var button = querySelector('#confirm');
+  button.text = 'Confirm';
+  button.classes.add('important');
+  button.onClick.listen((e) => window.alert('Confirmed!'));
+
+  querySelector('#confirm')
+    ..text = 'Confirm'
+    ..classes.add('important')
+    ..onClick.listen((e) => window.alert('Confirmed!'));
+  */
+
+  // Optional positional parameters
+  int sumUpToFive(int a, [int b = 2, int c = 3, int d = 4, int e = 5]) {
+    return a + b + c + d + e;
+  }
+
+  print(sumUpToFive(1)); // <-- prints 15
+
+  // Optional named parameters
+  void printName(String firstName, String lastName, {String suffix = ''}) {
+    print('$firstName $lastName ${suffix}');
+  }
+
+  printName('Joe', 'Doe');
+  printName('Poshmeister', 'Moneybuckets', suffix: 'IV');
+
+  final myColorOne = MyColorOne(80, 80, 128);
+  final myColorTwo = MyColorTwo(red: 80, green: 80, blue: 80);
+  final myColorThree = MyColorThree(80, 80, 128);
+
+  // Initializer lists
 }
