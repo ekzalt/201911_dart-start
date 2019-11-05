@@ -2,6 +2,7 @@
 
 // Importing core libraries
 import 'dart:io';
+import 'dart:async';
 
 // Importing libraries from external packages
 // import 'package:test/test.dart';
@@ -174,8 +175,64 @@ class MyColorThree {
   MyColorThree([this.red = 0, this.green = 0, this.blue = 0]);
 }
 
+// Named constructors
+class Point {
+  num x, y;
+
+  Point(this.x, this.y);
+
+  // origin - is a name
+  Point.origin() {
+    x = 0;
+    y = 0;
+  }
+}
+
+// Factory constructors
+class Square extends Shape {}
+
+class Circle extends Shape {}
+
+class Shape {
+  Shape();
+
+  factory Shape.fromTypeName(String typeName) {
+    if (typeName == 'square') return Square();
+    if (typeName == 'circle') return Circle();
+
+    print('I don\'t recognize $typeName');
+    return null;
+  }
+}
+
+// Redirecting constructors
+class Automobile {
+  String make;
+  String model;
+  int mpg;
+
+  // The main constructor for this class.
+  Automobile(this.make, this.model, this.mpg);
+
+  // Delegates to the main constructor.
+  Automobile.hybrid(String make, String model) : this(make, model, 60);
+
+  // Delegates to a named constructor
+  Automobile.fancyHybrid() : this.hybrid('Futurecar', 'Mark 2');
+}
+
+// Const constructors
+class ImmutablePoint {
+  const ImmutablePoint(this.x, this.y);
+
+  final int x;
+  final int y;
+
+  static const ImmutablePoint origin = ImmutablePoint(0, 0);
+}
+
 // app entry point
-main() {
+Future<void> main() async {
   // Hello World
   print("Hello, World!");
 
@@ -408,4 +465,72 @@ main() {
   final myColorThree = MyColorThree(80, 80, 128);
 
   // Initializer lists
+  // do some actions after calling before body - like in Solidity :)
+  /*
+  Point.fromJson(Map<String, num> json) : x = json['x'], y = json['y'] {
+    print('In Point.fromJson(): ($x, $y)');
+  }
+
+  NonNegativePoint(this.x, this.y) : assert(x >= 0), assert(y >= 0) {
+    print('I just made a NonNegativePoint: ($x, $y)');
+  }
+  */
+
+  // Asynchronous code
+  Future<String> getUserOrder() {
+    return Future.delayed(Duration(seconds: 4), () => 'Large Latte');
+  }
+
+  Future<String> createOrderMessage() async {
+    print('Awaiting user order...');
+    var order = 'none';
+
+    // Handling errors
+    try {
+      order = await getUserOrder();
+    } catch (err) {
+      print('Caught error: $err');
+    }
+
+    return 'Your order is: $order';
+  }
+
+  void countSeconds(s) {
+    for (var i = 1; i <= s; i++) {
+      Future.delayed(Duration(seconds: i), () => print(i));
+    }
+  }
+
+  print('Fetching user order...');
+  countSeconds(4);
+  print(await createOrderMessage());
+
+  // Valid compile-time constants as of Dart 2.5.
+  const Object i = 3; // Where i is a const Object with an int value...
+  const listI = [i as int]; // Use a typecast.
+  const mapI = {if (i is int) i: "int"}; // Use is and collection if.
+  const setI = {if (listI is List<int>) ...listI}; // ...and a spread.
+
+  // Dart 2.3 introduced the spread operator (...) and the null-aware spread operator (...?)
+  List<int> list1;
+  List<int> list2 = [0, ...?list1];
+  assert(list2.length == 1);
+
+  // Dart 2.3 introduced collection if and collection for
+  List<String> nav = ['Home', 'Furniture', 'Plants', if (true) 'Outlet'];
+
+  List<int> listOfInts = [1, 2, 3];
+  List<String> listOfStrings = ['#0', for (var i in listOfInts) '#$i'];
+  assert(listOfStrings[1] == '#1');
+
+  // Sets
+  var halogens = {'fluorine', 'chlorine', 'bromine', 'iodine', 'astatine'};
+  var elements = <String>{};
+
+  elements.add('fluorine');
+  elements.addAll(halogens);
+  
+  assert(elements.length == 5);
+
+  //
 }

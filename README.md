@@ -6,6 +6,21 @@
 
 [Dart packages](https://pub.dev/)
 
+Install Dart on Windows
+
+```bash
+# install
+choco install dart-sdk
+
+# update to last
+choco upgrade dart-sdk
+
+# see version
+dart --version
+```
+
+Using Dart CLI
+
 ```bash
 # simple run
 dart main.dart
