@@ -232,9 +232,8 @@ class ImmutablePoint {
 }
 
 // app entry point
-Future<void> main() async {
-  // Hello World
-  print("Hello, World!");
+Future<void> main(List<String> arguments) async {
+  print(arguments);
 
   // Variables
   var name = 'Voyager I';
@@ -529,8 +528,97 @@ Future<void> main() async {
 
   elements.add('fluorine');
   elements.addAll(halogens);
-  
+
   assert(elements.length == 5);
+
+  // constantSet
+  final constantSet = const {
+    'fluorine',
+    'chlorine',
+    'bromine',
+    'iodine',
+    'astatine',
+  };
+
+  var items = [2, 3, 4];
+  var spreadSet = {1, 2, ...items};
+
+  // Maps
+  // As of Dart 2.3, maps support spread operators (... and ...?) and collection if and for, just like lists do
+
+  // literals
+  var gifts1 = {
+    // Key:    Value
+    'first': 'partridge',
+    'second': 'turtledoves',
+    'fifth': 'golden rings'
+  };
+  var nobleGases1 = {
+    2: 'helium',
+    10: 'neon',
+    18: 'argon',
+  };
+
+  assert(gifts1['first'] == 'partridge');
+  assert(gifts1['third'] == null);
+  assert(gifts1.length == 3);
+
+  // Map constructor
+  var gifts2 = Map();
+  gifts2['first'] = 'partridge';
+  gifts2['second'] = 'turtledoves';
+  gifts2['fifth'] = 'golden rings';
+
+  var nobleGases2 = Map();
+  nobleGases2[2] = 'helium';
+  nobleGases2[10] = 'neon';
+  nobleGases2[18] = 'argon';
+
+  // constantMap
+  final constantMap = const {
+    2: 'helium',
+    10: 'neon',
+    18: 'argon',
+  };
+
+  var rank = {"rank": 4};
+  var spreadMap = {"userId": 123, "timeout": 300, ...rank};
+
+  // Functions
+
+  // decratation
+  int sum1(int a, int b) {
+    return a + b;
+  }
+
+  // lambda
+  int sum2(int a, int b) => a + b;
+
+  // Named parameters
+  void enableFlags1({bool bold, bool hidden}) {}
+  enableFlags1(bold: true, hidden: false);
+
+  // @required (import 'package:meta/meta.dart'; - it should be installed)
+  // const Scrollbar({Key key, @required Widget child});
+
+  // Positional parameters
+  String say(String from, String msg, [String device]) {
+    var result = '$from says $msg';
+
+    if (device != null) {
+      result = '$result with a $device';
+    }
+
+    return result;
+  }
+
+  assert(say('Bob', 'Howdy') == 'Bob says Howdy');
+  assert(say('Bob', 'Howdy', 'smoke signal') ==
+      'Bob says Howdy with a smoke signal');
+
+  // Default parameter values
+  void enableFlags2({bool bold = false, bool hidden = false}) {}
+  enableFlags2(bold: true);
 
   //
 }
