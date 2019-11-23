@@ -9,6 +9,7 @@ import 'dart:async';
 
 // Importing files
 // import 'path/to/my_other_file.dart';
+import 'todo.dart';
 
 // Classes
 class Spacecraft {
@@ -58,6 +59,29 @@ class Piloted {
 // create mixed class - multiple inheritance
 class PilotedCraft extends Spacecraft with Piloted {
   PilotedCraft(String name, DateTime launchDate) : super(name, launchDate);
+}
+
+// To implement a mixin, create a class that extends Object and declares no constructors
+// Unless you want your mixin to be usable as a regular class, use the mixin keyword instead of class
+mixin Musical {
+  bool canPlayPiano = false;
+  bool canCompose = false;
+  bool canConduct = false;
+
+  void entertainMe() {
+    if (canPlayPiano) {
+      print('Playing piano');
+    } else if (canConduct) {
+      print('Waving hands');
+    } else {
+      print('Humming to self');
+    }
+  }
+}
+
+// To specify that only certain types can use the mixin use on to specify the required superclass
+mixin MusicalPerformer on Piloted {
+  // ···
 }
 
 // Interfaces
@@ -229,6 +253,37 @@ class ImmutablePoint {
   final int y;
 
   static const ImmutablePoint origin = ImmutablePoint(0, 0);
+}
+
+// Callable classes
+class WannabeFunction {
+  call(String a, String b, String c) => '$a $b $c!';
+}
+
+// Enumerated types
+enum Color { red, green, blue }
+
+// Generics
+abstract class Cache<T> {
+  T getValue(String key);
+  void setValue(String key, T value);
+}
+
+// Typedef (function-type alias with Generics support)
+typedef Compare<T> = int Function(T a, T b);
+
+// Metadata (@deprecated and @override)
+class Television {
+  /// _Deprecated: Use [turnOn] instead._
+  @deprecated
+  void activate() {
+    turnOn();
+  }
+
+  /// Turns the TV's power on.
+  void turnOn() {
+    //
+  }
 }
 
 // app entry point
@@ -620,5 +675,198 @@ Future<void> main(List<String> arguments) async {
   void enableFlags2({bool bold = false, bool hidden = false}) {}
   enableFlags2(bold: true);
 
-  //
+  // Functions as first-class objects
+  void printElement(int element) {
+    print(element);
+  }
+
+  [1, 2, 3].forEach(printElement);
+
+  // assign anonimous lambda function to a variable
+  var loudify = (String msg) => '!!! ${msg.toUpperCase()} !!!';
+
+  assert(loudify('hello') == '!!! HELLO !!!');
+
+  // Anonymous functions
+  var fruit = ['apples', 'bananas', 'oranges'];
+
+  fruit.forEach((item) {
+    print('${fruit.indexOf(item)}: $item');
+  });
+
+  // Anonymous lambda functions
+  fruit.forEach((item) => print('${fruit.indexOf(item)}: $item'));
+
+  // Lexical scope
+  void myFunction() {
+    var insideFunction = true;
+
+    void nestedFunction() {
+      var insideNestedFunction = true;
+
+      assert(insideFunction);
+      assert(insideNestedFunction);
+    }
+  }
+
+  // Lexical closures
+  int Function(int) doCurrying(int a) {
+    return (int b) => a + b;
+  }
+
+  var add2 = doCurrying(2);
+
+  assert(add2(2) == 4);
+  assert(doCurrying(2)(2) == 4);
+
+  // If no return value is specified, the statement return null
+  foo() {}
+
+  assert(foo() == null);
+
+  // Operators
+
+  assert(2 + 3 == 5);
+  assert(2 - 3 == -1);
+  assert(2 * 3 == 6);
+  assert(5 / 2 == 2.5); // Result is a double
+  assert(5 ~/ 2 == 2); // Result is an int
+  assert(5 % 2 == 1); // Remainder
+
+  /*
+  // Typecast
+  (emp as Person).firstName = 'Bob';
+
+  // typeof/instanceof
+  if (emp is Person && is! Boss) emp.firstName = 'Bob';
+
+  // Assign value to a
+  a = value;
+  
+  // Assign value to b if b is null; otherwise, b stays the same
+  b ??= value;
+  */
+
+  // Conditional expressions
+  var isPublic = true;
+  var visibility = isPublic ? 'public' : 'private';
+  // If the boolean expression tests for null, consider using ??
+  String playerName(String name) => name ?? 'Guest';
+
+  /*
+  // Slightly longer version uses ?: operator.
+  String playerName(String name) => (name != null) ? name : 'Guest';
+
+  // Very long version uses if-else statement.
+  String playerName(String name) {
+    if (name != null) return name;
+
+    return 'Guest';
+  }
+  */
+
+  // Cascade notation (..)
+  /*
+  final addressBook = (AddressBookBuilder()
+        ..name = 'jenny'
+        ..email = 'jenny@example.com'
+        ..phone = (PhoneNumberBuilder()
+              ..number = '415-555-0100'
+              ..label = 'home')
+            .build())
+      .build();
+  */
+
+  // For loops
+  List<void Function()> callbacks = [];
+
+  // for
+  for (int i = 0; i < 2; i++) {
+    callbacks.add(() => print(i));
+  }
+  // forEach
+  callbacks.forEach((cb) => cb());
+  // for-in
+  for (var cb in callbacks) {
+    cb();
+  }
+
+  /*
+  // If p is non-null, set its y value to 4.
+  p?.y = 4;
+
+  var p1 = Point(2, 2);
+  var p2 = const ImmutablePoint(2, 2);
+  */
+
+  // Enumerated types
+  assert(Color.red.index == 0);
+  assert(Color.green.index == 1);
+  assert(Color.blue.index == 2);
+
+  assert(Color.blue.toString() == 'blue');
+
+  List<Color> colors = Color.values;
+  assert(colors[2] == Color.blue);
+
+  var color = Color.blue;
+
+  switch (color) {
+    case Color.red:
+      print('Red as roses!');
+      break;
+    case Color.green:
+      print('Green as grass!');
+      break;
+    default: // Without this, you see a WARNING.
+      print(color); // 'Color.blue'
+  }
+
+  // Generics
+
+  // Using collection literals
+  // var names = List<String>();
+  var names = <String>['Seth', 'Kathy', 'Lars'];
+
+  print(names is List<String>); // true
+
+  var uniqueNames = <String>{'Seth', 'Kathy', 'Lars'};
+  var pages = <String, String>{
+    'index.html': 'Homepage',
+    'robots.txt': 'Hints for web robots',
+    'humans.txt': 'We are people, not machines'
+  };
+
+  var nameSet = Set<String>.from(names);
+
+  T getFirst<T>(List<T> ts) {
+    T tmp = ts[0];
+
+    return tmp;
+  }
+
+  // Generators
+
+  // Synchronous generator: Returns an Iterable object
+  Iterable<int> naturalsTo(int n) sync* {
+    int k = 0;
+    while (k < n) yield k++;
+  }
+
+  // Asynchronous generator: Returns a Stream object
+  Stream<int> asynchronousNaturalsTo(int n) async* {
+    int k = 0;
+    while (k < n) yield k++;
+  }
+
+  // Callable classes
+  var wf = new WannabeFunction();
+  var out = wf("Hi", "there,", "gang");
+  print('$out');
+
+  // Metadata annotations (custom @todo annotation)
+  @Todo('seth', 'make this do something')
+  void doSomething() {
+    print('do something');
+  }
 }
