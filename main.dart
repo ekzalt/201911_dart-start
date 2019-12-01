@@ -845,6 +845,17 @@ Future<void> main(List<String> arguments) async {
     return tmp;
   }
 
+  // Callable classes
+  var wf = new WannabeFunction();
+  var out = wf("Hi", "there,", "gang");
+  print('$out');
+
+  // Metadata annotations (custom @todo annotation)
+  @Todo('seth', 'make this do something')
+  void doSomething() {
+    print('do something');
+  }
+
   // Generators
 
   // Synchronous generator: Returns an Iterable object
@@ -859,14 +870,8 @@ Future<void> main(List<String> arguments) async {
     while (k < n) yield k++;
   }
 
-  // Callable classes
-  var wf = new WannabeFunction();
-  var out = wf("Hi", "there,", "gang");
-  print('$out');
-
-  // Metadata annotations (custom @todo annotation)
-  @Todo('seth', 'make this do something')
-  void doSomething() {
-    print('do something');
+  // sequence of futures
+  Stream<T> runSequence<T>(Iterable<Future<T>> futures) async* {
+    for (Future<T> future in futures) yield await future;
   }
 }
