@@ -1,0 +1,16 @@
+# https://dart.dev/tools/pub/pubspec
+# https://pub.dev/
+
+name: dart_start
+version: 0.0.1
+description: >-
+  This is
+  multiline
+  description.
+environment:
+  sdk: '>=2.2.2 <3.0.0'
+dependencies:
+  args: ^1.5.2
+  json_serializable: ^3.2.3
+dev_dependencies:
+  test: ^1.9.4

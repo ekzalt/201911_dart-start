@@ -3,6 +3,7 @@
 // Importing core libraries
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
 
 // Importing libraries from external packages
 // import 'package:test/test.dart';
@@ -257,7 +258,7 @@ class ImmutablePoint {
 
 // Callable classes
 class WannabeFunction {
-  call(String a, String b, String c) => '$a $b $c!';
+  String call(String a, String b, String c) => '$a $b $c!';
 }
 
 // Enumerated types
@@ -291,11 +292,11 @@ Future<void> main(List<String> arguments) async {
   print(arguments);
 
   // Variables
-  var name = 'Voyager I';
-  var year = 1977;
-  var antennaDiameter = 3.7;
-  var flybyObjects = ['Jupiter', 'Saturn', 'Uranus', 'Neptune'];
-  var image = {
+  String name = 'Voyager I';
+  int year = 1977;
+  double antennaDiameter = 3.7;
+  List<String> flybyObjects = ['Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+  Map<String, Object> image = {
     'tags': ['saturn'],
     'url': '//path/to/saturn.jpg'
   };
@@ -325,7 +326,7 @@ Future<void> main(List<String> arguments) async {
     return fibonacci(n - 1) + fibonacci(n - 2);
   }
 
-  var result = fibonacci(20);
+  int result = fibonacci(20);
 
   flybyObjects.where((name) => name.contains('turn')).forEach(print);
 
@@ -340,14 +341,14 @@ Future<void> main(List<String> arguments) async {
   /* Comments like these are also supported. */
 
   // Classes
-  var voyager = Spacecraft('Voyager I', DateTime(1977, 9, 5));
+  Spacecraft voyager = Spacecraft('Voyager I', DateTime(1977, 9, 5));
   voyager.describe();
 
-  var voyager3 = Spacecraft.unlaunched('Voyager III');
+  Spacecraft voyager3 = Spacecraft.unlaunched('Voyager III');
   voyager3.describe();
 
   // Async
-  const oneSecond = Duration(seconds: 1);
+  const Duration oneSecond = Duration(seconds: 1);
 
   Future<void> printWithDelay(String message) async {
     await Future.delayed(oneSecond);
@@ -367,36 +368,55 @@ Future<void> main(List<String> arguments) async {
   printWithDelay('Hello, I am 1 sec delay');
   print('after printWithDelay');
 
-  Future<void> createDescriptions(Iterable<String> objects) async {
-    for (var object in objects) {
+  Future<void> createDescriptions(Iterable<String> filenames) async {
+    for (String name in filenames) {
       try {
-        var file = File('$object.txt');
+        File file = File('$name.txt');
 
         if (await file.exists()) {
-          var modified = await file.lastModified();
-          print(
-              'File for $object already exists. It was modified on $modified.');
+          DateTime modified = await file.lastModified();
+          print('File for $name already exists. It was modified on $modified.');
           continue;
         }
 
         await file.create();
-        await file.writeAsString('Start describing $object in this file.');
+        await file.writeAsString('Start describing $name in this file.');
       } on IOException catch (e) {
-        print('Cannot create description for $object: $e');
+        print('Cannot create description for $name: $e');
       }
     }
   }
 
   // Generators / Async generators
+
   // You can also use async*, which gives you a nice, readable way to build streams
-  Stream<String> report(Spacecraft craft, Iterable<String> objects) async* {
-    for (var object in objects) {
+  Stream<String> report(Spacecraft craft, Iterable<String> filenames) async* {
+    for (String name in filenames) {
       await Future.delayed(oneSecond);
-      yield '${craft.name} flies by $object';
+
+      yield '${craft.name} flies by $name';
     }
   }
 
+  // Streams
+
+  Future<int> sumStream(Stream<int> stream) async {
+    int sum = 0;
+
+    try {
+      await for (int value in stream) sum += value;
+    } catch (e) {
+      return -1;
+    }
+
+    return sum;
+  }
+
+  Future<int> lastPositive(Stream<int> stream) =>
+      stream.lastWhere((x) => x >= 0);
+
   // Exceptions
+
   /*
   throw Exception('Something bad happened.');
   throw 'Waaaaaaah!';
@@ -430,17 +450,17 @@ Future<void> main(List<String> arguments) async {
   }
   */
 
-  Future<void> printDescriptions(List<String> objects) async {
+  Future<void> printDescriptions(List<String> filenames) async {
     try {
-      for (var object in objects) {
-        var description = await File('$object.txt').readAsString();
+      for (String name in filenames) {
+        String description = await File('$name.txt').readAsString();
         print(description);
       }
     } on IOException catch (e) {
       print('Could not describe object: $e');
     } finally {
       // Always clean up, even if an exception is thrown
-      objects.clear();
+      filenames.clear();
     }
   }
 
@@ -462,17 +482,17 @@ Future<void> main(List<String> arguments) async {
   }
 
   // Collection literals
-  final aListOfStrings = ['one', 'two', 'three'];
-  final aSetOfStrings = {'one', 'two', 'three'};
-  final aMapOfStringsToInts = {
+  final List<String> aListOfStrings = ['one', 'two', 'three'];
+  final Set<String> aSetOfStrings = {'one', 'two', 'three'};
+  final Map<String, int> aMapOfStringsToInts = {
     'one': 1,
     'two': 2,
     'three': 3,
   };
 
-  final aListOfInts = <int>[];
-  final aSetOfInts = <int>{};
-  final aMapOfIntToDouble = <int, double>{};
+  final List<int> aListOfInts = <int>[];
+  final Set<int> aSetOfInts = <int>{};
+  final Map<int, double> aMapOfIntToDouble = <int, double>{};
 
   // final aListOfBaseType = <BaseType>[SubType(), SubType()];
 
@@ -514,9 +534,9 @@ Future<void> main(List<String> arguments) async {
   printName('Joe', 'Doe');
   printName('Poshmeister', 'Moneybuckets', suffix: 'IV');
 
-  final myColorOne = MyColorOne(80, 80, 128);
-  final myColorTwo = MyColorTwo(red: 80, green: 80, blue: 80);
-  final myColorThree = MyColorThree(80, 80, 128);
+  final MyColorOne myColorOne = MyColorOne(80, 80, 128);
+  final MyColorTwo myColorTwo = MyColorTwo(red: 80, green: 80, blue: 80);
+  final MyColorThree myColorThree = MyColorThree(80, 80, 128);
 
   // Initializer lists
   // do some actions after calling before body - like in Solidity :)
@@ -537,20 +557,20 @@ Future<void> main(List<String> arguments) async {
 
   Future<String> createOrderMessage() async {
     print('Awaiting user order...');
-    var order = 'none';
+    String order = 'none';
 
     // Handling errors
     try {
       order = await getUserOrder();
-    } catch (err) {
-      print('Caught error: $err');
+    } catch (e) {
+      print('Caught error: $e');
     }
 
     return 'Your order is: $order';
   }
 
-  void countSeconds(s) {
-    for (var i = 1; i <= s; i++) {
+  void countSeconds(int s) {
+    for (int i = 1; i <= s; i++) {
       Future.delayed(Duration(seconds: i), () => print(i));
     }
   }
@@ -561,25 +581,34 @@ Future<void> main(List<String> arguments) async {
 
   // Valid compile-time constants as of Dart 2.5.
   const Object i = 3; // Where i is a const Object with an int value...
-  const listI = [i as int]; // Use a typecast.
-  const mapI = {if (i is int) i: "int"}; // Use is and collection if.
-  const setI = {if (listI is List<int>) ...listI}; // ...and a spread.
+  const List<int> listI = [i as int]; // Use a typecast.
+  const Map<int, String> mapI = {
+    if (i is int) i: "int"
+  }; // Use is and collection if.
+  const Set<int> setI = {if (listI is List<int>) ...listI}; // ...and a spread.
 
   // Dart 2.3 introduced the spread operator (...) and the null-aware spread operator (...?)
   List<int> list1;
   List<int> list2 = [0, ...?list1];
+
   assert(list2.length == 1);
 
   // Dart 2.3 introduced collection if and collection for
   List<String> nav = ['Home', 'Furniture', 'Plants', if (true) 'Outlet'];
-
   List<int> listOfInts = [1, 2, 3];
   List<String> listOfStrings = ['#0', for (var i in listOfInts) '#$i'];
+
   assert(listOfStrings[1] == '#1');
 
   // Sets
-  var halogens = {'fluorine', 'chlorine', 'bromine', 'iodine', 'astatine'};
-  var elements = <String>{};
+  Set<String> halogens = {
+    'fluorine',
+    'chlorine',
+    'bromine',
+    'iodine',
+    'astatine'
+  };
+  Set<String> elements = <String>{};
 
   elements.add('fluorine');
   elements.addAll(halogens);
@@ -587,7 +616,7 @@ Future<void> main(List<String> arguments) async {
   assert(elements.length == 5);
 
   // constantSet
-  final constantSet = const {
+  final Set<String> constantSet = const {
     'fluorine',
     'chlorine',
     'bromine',
@@ -595,20 +624,20 @@ Future<void> main(List<String> arguments) async {
     'astatine',
   };
 
-  var items = [2, 3, 4];
-  var spreadSet = {1, 2, ...items};
+  List<int> items = [2, 3, 4];
+  Set<int> spreadSet = {1, 2, ...items};
 
   // Maps
   // As of Dart 2.3, maps support spread operators (... and ...?) and collection if and for, just like lists do
 
   // literals
-  var gifts1 = {
+  Map<String, String> gifts1 = {
     // Key:    Value
     'first': 'partridge',
     'second': 'turtledoves',
     'fifth': 'golden rings'
   };
-  var nobleGases1 = {
+  Map<int, String> nobleGases1 = {
     2: 'helium',
     10: 'neon',
     18: 'argon',
@@ -619,25 +648,25 @@ Future<void> main(List<String> arguments) async {
   assert(gifts1.length == 3);
 
   // Map constructor
-  var gifts2 = Map();
+  Map<String, String> gifts2 = Map();
   gifts2['first'] = 'partridge';
   gifts2['second'] = 'turtledoves';
   gifts2['fifth'] = 'golden rings';
 
-  var nobleGases2 = Map();
+  Map<int, String> nobleGases2 = Map();
   nobleGases2[2] = 'helium';
   nobleGases2[10] = 'neon';
   nobleGases2[18] = 'argon';
 
   // constantMap
-  final constantMap = const {
+  final Map<int, String> constantMap = const {
     2: 'helium',
     10: 'neon',
     18: 'argon',
   };
 
-  var rank = {"rank": 4};
-  var spreadMap = {"userId": 123, "timeout": 300, ...rank};
+  Map<String, int> rank = {"rank": 4};
+  Map<String, int> spreadMap = {"userId": 123, "timeout": 300, ...rank};
 
   // Functions
 
@@ -683,12 +712,13 @@ Future<void> main(List<String> arguments) async {
   [1, 2, 3].forEach(printElement);
 
   // assign anonimous lambda function to a variable
-  var loudify = (String msg) => '!!! ${msg.toUpperCase()} !!!';
+  String Function(String) loudify =
+      (String msg) => '!!! ${msg.toUpperCase()} !!!';
 
   assert(loudify('hello') == '!!! HELLO !!!');
 
   // Anonymous functions
-  var fruit = ['apples', 'bananas', 'oranges'];
+  List<String> fruit = ['apples', 'bananas', 'oranges'];
 
   fruit.forEach((item) {
     print('${fruit.indexOf(item)}: $item');
@@ -699,10 +729,10 @@ Future<void> main(List<String> arguments) async {
 
   // Lexical scope
   void myFunction() {
-    var insideFunction = true;
+    bool insideFunction = true;
 
     void nestedFunction() {
-      var insideNestedFunction = true;
+      bool insideNestedFunction = true;
 
       assert(insideFunction);
       assert(insideNestedFunction);
@@ -714,7 +744,7 @@ Future<void> main(List<String> arguments) async {
     return (int b) => a + b;
   }
 
-  var add2 = doCurrying(2);
+  int Function(int) add2 = doCurrying(2);
 
   assert(add2(2) == 4);
   assert(doCurrying(2)(2) == 4);
@@ -748,8 +778,8 @@ Future<void> main(List<String> arguments) async {
   */
 
   // Conditional expressions
-  var isPublic = true;
-  var visibility = isPublic ? 'public' : 'private';
+  bool isPublic = true;
+  String visibility = isPublic ? 'public' : 'private';
   // If the boolean expression tests for null, consider using ??
   String playerName(String name) => name ?? 'Guest';
 
@@ -781,15 +811,11 @@ Future<void> main(List<String> arguments) async {
   List<void Function()> callbacks = [];
 
   // for
-  for (int i = 0; i < 2; i++) {
-    callbacks.add(() => print(i));
-  }
+  for (int i = 0; i < 2; i++) callbacks.add(() => print(i));
   // forEach
   callbacks.forEach((cb) => cb());
   // for-in
-  for (var cb in callbacks) {
-    cb();
-  }
+  for (void Function() cb in callbacks) cb();
 
   /*
   // If p is non-null, set its y value to 4.
@@ -803,13 +829,13 @@ Future<void> main(List<String> arguments) async {
   assert(Color.red.index == 0);
   assert(Color.green.index == 1);
   assert(Color.blue.index == 2);
-
   assert(Color.blue.toString() == 'blue');
 
   List<Color> colors = Color.values;
+
   assert(colors[2] == Color.blue);
 
-  var color = Color.blue;
+  Color color = Color.blue;
 
   switch (color) {
     case Color.red:
@@ -826,18 +852,17 @@ Future<void> main(List<String> arguments) async {
 
   // Using collection literals
   // var names = List<String>();
-  var names = <String>['Seth', 'Kathy', 'Lars'];
+  List<String> names = <String>['Seth', 'Kathy', 'Lars'];
 
   print(names is List<String>); // true
 
-  var uniqueNames = <String>{'Seth', 'Kathy', 'Lars'};
-  var pages = <String, String>{
+  Set<String> uniqueNames = <String>{'Seth', 'Kathy', 'Lars'};
+  Map<String, String> pages = <String, String>{
     'index.html': 'Homepage',
     'robots.txt': 'Hints for web robots',
     'humans.txt': 'We are people, not machines'
   };
-
-  var nameSet = Set<String>.from(names);
+  Set<String> nameSet = Set<String>.from(names);
 
   T getFirst<T>(List<T> ts) {
     T tmp = ts[0];
@@ -846,8 +871,8 @@ Future<void> main(List<String> arguments) async {
   }
 
   // Callable classes
-  var wf = new WannabeFunction();
-  var out = wf("Hi", "there,", "gang");
+  WannabeFunction wf = new WannabeFunction();
+  String out = wf("Hi", "there,", "gang");
   print('$out');
 
   // Metadata annotations (custom @todo annotation)
@@ -861,12 +886,14 @@ Future<void> main(List<String> arguments) async {
   // Synchronous generator: Returns an Iterable object
   Iterable<int> naturalsTo(int n) sync* {
     int k = 0;
+
     while (k < n) yield k++;
   }
 
   // Asynchronous generator: Returns a Stream object
   Stream<int> asynchronousNaturalsTo(int n) async* {
     int k = 0;
+
     while (k < n) yield k++;
   }
 
@@ -874,4 +901,16 @@ Future<void> main(List<String> arguments) async {
   Stream<T> runSequence<T>(Iterable<Future<T>> futures) async* {
     for (Future<T> future in futures) yield await future;
   }
+
+  // JSON
+  String scoresJson = '[{"score":40},{"score":80}]';
+  List<dynamic> scores = jsonDecode(scoresJson);
+
+  assert(scores is List);
+  assert(scores[0] is Map);
+  assert(scores[0]['score'] == 40);
+
+  String scoresJson2 = jsonEncode(scores);
+
+  assert(scoresJson == scoresJson2);
 }

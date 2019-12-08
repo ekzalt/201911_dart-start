@@ -32,6 +32,20 @@ dart2aot main.dart main.dart.aot
 dartaotruntime main.dart.aot
 ```
 
+Install globaly CLI tool [Stagehand](https://pub.dev/packages/stagehand) - A Dart project generator
+
+```bash
+# pub global activate <package_name> - global install
+pub global activate stagehand
+```
+
+Install dependencies for current project
+
+```bash
+# install dependencies
+pub get
+```
+
 ## Back-end
 
 [Aqueduct](https://aqueduct.io/) is an extensible HTTP framework for building REST APIs on top of the Dart VM. It includes a statically-typed ORM, OAuth 2.0 provider,
